@@ -1,5 +1,6 @@
 package com.tiago.notepad.note
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
 /**
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("notes")
-class NoteController {
+class NoteController(@Autowired private val noteRepository: NoteRepository) {
 
     /**
      * Retorna todas as notas.
@@ -20,12 +21,7 @@ class NoteController {
      * @return Lista de todas as notas
      */
     @GetMapping
-    fun getAllNotes(): List<Note> {
-        return listOf(
-            Note("Leitura", "Livro de Spring Boot"),
-            Note("Pesquisa", "Ambiente docker")
-        )
-    }
+    fun getAllNotes(): List<Note> = noteRepository.findAll()
 
     /**
      * Cria uma nova nota.
@@ -34,7 +30,5 @@ class NoteController {
      * @return A nota criada.
      */
     @PostMapping
-    fun createNote(@RequestBody note: Note): Note {
-        return note
-    }
+    fun createNote(@RequestBody note: Note): Note = noteRepository.save(note)
 }

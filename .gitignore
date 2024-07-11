@@ -38,9 +38,13 @@ build/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+bin/
 
 ### VS Code ###
 .vscode/
 
 ### Kotlin ###
 .kotlin
+database/main/db.lck
+database/main/db.properties
+database/main/db.script

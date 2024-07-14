@@ -31,4 +31,14 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
      */
     @PostMapping
     fun createNote(@RequestBody note: Note): Note = noteRepository.save(note)
+
+    /**
+    * Deleta uma nota
+    *
+    * @param id - id da nota a ser removida
+    */
+    @DeleteMapping
+    fun deleteNote(val id: Long) = noteRepository.deleteById(id)
+
+
 }

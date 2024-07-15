@@ -1,6 +1,7 @@
 package com.tiago.notepad.note
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 /**
@@ -33,12 +34,12 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
     fun createNote(@RequestBody note: Note): Note = noteRepository.save(note)
 
     /**
-    * Deleta uma nota
-    *
-    * @param id - id da nota a ser removida
-    */
-    @DeleteMapping
-    fun deleteNote(val id: Long) = noteRepository.deleteById(id)
-
-
+     * Deleta uma nota
+     *
+     * @param id - id da nota a ser removida
+     */
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteNote(@PathVariable id: Long) = noteRepository.deleteById(id)
+    
 }

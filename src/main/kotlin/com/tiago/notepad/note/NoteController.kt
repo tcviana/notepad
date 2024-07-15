@@ -3,6 +3,7 @@ package com.tiago.notepad.note
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 /**
  * A classe [NoteController] representa o controlador REST para gerenciar notas.
@@ -40,6 +41,11 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteNote(@PathVariable id: Long) = noteRepository.deleteById(id)
-    
+    fun deleteNote(@PathVariable id: Long) {
+        if (noteRepository.existsById(id))
+            noteRepository.deleteById(id)
+        else
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found")
+    }
+
 }

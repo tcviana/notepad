@@ -59,13 +59,23 @@ class NoteControllerTests @Autowired constructor(
     @Test
     fun `should delete a note`() {
         val noteId = 1L
-        doNothing().`when`(noteRepository).deleteById(noteId)
+        `when`(noteRepository.existsById(noteId)).thenReturn(true)
 
         mockMvc.perform(
             delete("/notes/{id}", noteId)
         ).andExpect(status().isNoContent)
 
         verify(noteRepository, times(1)).deleteById(noteId)
+    }
+
+    @Test
+    fun `should return 404 when deleting a non-existing note`() {
+        val noteId = 5L
+
+        `when`(noteRepository.existsById(noteId)).thenReturn(false)
+
+        mockMvc.perform(delete("/notes/{id}", noteId))
+            .andExpect(status().isNotFound)
     }
 
     private fun retrieveCreatedNote(): Note = Note(1, title, description)

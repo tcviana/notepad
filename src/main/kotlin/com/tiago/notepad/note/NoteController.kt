@@ -48,4 +48,21 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found")
     }
 
+    /**
+     * Atualiza uma note
+     *
+     * @param id - id da nota a ser atualizada
+     * @param note - nota a ser atualizada
+     */
+    @PutMapping("/{id}")
+    fun updateNote(@PathVariable id: Long, @RequestBody note: Note): Note {
+        return noteRepository.findById(id).map { existedNote ->
+            val newNote = existedNote.copy(
+                title = note.title,
+                description = note.description
+            )
+            noteRepository.save(newNote)
+        }.orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found") }
+    }
+
 }

@@ -13,6 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import java.util.*
 
 @WebMvcTest(NoteController::class)
 class NoteControllerTests @Autowired constructor(
@@ -75,6 +76,41 @@ class NoteControllerTests @Autowired constructor(
         `when`(noteRepository.existsById(noteId)).thenReturn(false)
 
         mockMvc.perform(delete("/notes/{id}", noteId))
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `should update a note`() {
+        val existedNote = retrieveCreatedNote()
+        val title = "Update title"
+        val description = "Update description"
+        val updatedNote = existedNote.copy(title = title, description = description)
+
+        `when`(noteRepository.findById(existedNote.id!!)).thenReturn(Optional.of(existedNote))
+        `when`(noteRepository.save(updatedNote)).thenReturn(updatedNote)
+
+        mockMvc.perform(
+            put("/notes/{id}", existedNote.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedNote))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(updatedNote.id))
+            .andExpect(jsonPath("$.title").value(updatedNote.title))
+            .andExpect(jsonPath("$.description").value(updatedNote.description))
+    }
+
+    @Test
+    fun `should return 404 when update a non-existing note`() {
+        val note = retrieveCreatedNote()
+
+        `when`(noteRepository.findById(note.id!!)).thenReturn(Optional.empty())
+
+        mockMvc.perform(
+            put("/notes/{id}", note.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(note))
+        )
             .andExpect(status().isNotFound)
     }
 

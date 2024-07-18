@@ -114,6 +114,30 @@ class NoteControllerTests @Autowired constructor(
             .andExpect(status().isNotFound)
     }
 
+    @Test
+    fun `should partially update note`() {
+        val existedNote = retrieveCreatedNote()
+        val newNote = existedNote.copy(
+            title = "Updated title"
+        )
+
+        `when`(noteRepository.findById(existedNote.id!!)).thenReturn(Optional.of(existedNote))
+        `when`(noteRepository.save(newNote)).thenReturn(newNote)
+
+        mockMvc.perform(
+            patch("/notes/{id}", existedNote.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newNote))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(existedNote.id))
+            .andExpect(jsonPath("$.title").value(newNote.title))
+            .andExpect(jsonPath("$.description").value(existedNote.description))
+
+        verify(noteRepository, times(1)).findById(existedNote.id!!)
+        verify(noteRepository, times(1)).save(newNote)
+    }
+
     private fun retrieveCreatedNote(): Note = Note(1, title, description)
 
 }

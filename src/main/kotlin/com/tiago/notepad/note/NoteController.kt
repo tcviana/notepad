@@ -65,4 +65,15 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
         }.orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found") }
     }
 
+    @PatchMapping("/{id}")
+    fun partiallyUpdateNote(@PathVariable id: Long, @RequestBody updateFields: Map<String, Any>): Note {
+        return noteRepository.findById(id).map { existedNote ->
+            val updatedNote = existedNote.copy(
+                title = updateFields["title"] as? String ?: existedNote.title,
+                description = updateFields["description"] as? String ?: existedNote.description
+            )
+            noteRepository.save(updatedNote)
+        }.orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found") }
+    }
+
 }

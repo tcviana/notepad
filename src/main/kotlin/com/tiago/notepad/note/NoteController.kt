@@ -23,7 +23,7 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
      * @return Lista de todas as notas
      */
     @GetMapping
-    fun getAllNotes(): List<Note> = noteRepository.findAll()
+    fun getAllNotes(): List<NoteDTO> = noteRepository.findAll().map { NoteMapper.toDTO(it) }
 
     /**
      * Cria uma nova nota.
@@ -32,7 +32,10 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
      * @return A nota criada.
      */
     @PostMapping
-    fun createNote(@RequestBody note: Note): Note = noteRepository.save(note)
+    fun createNote(@RequestBody noteDTO: NoteDTO): NoteDTO {
+        val note = NoteMapper.toEntity(noteDTO)
+        return NoteMapper.toDTO(noteRepository.save(note))
+    }
 
     /**
      * Deleta uma nota
@@ -55,24 +58,24 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
      * @param note - nota a ser atualizada
      */
     @PutMapping("/{id}")
-    fun updateNote(@PathVariable id: Long, @RequestBody note: Note): Note {
+    fun updateNote(@PathVariable id: Long, @RequestBody note: NoteDTO): NoteDTO {
         return noteRepository.findById(id).map { existedNote ->
             val newNote = existedNote.copy(
                 title = note.title,
                 description = note.description
             )
-            noteRepository.save(newNote)
+            NoteMapper.toDTO(noteRepository.save(newNote))
         }.orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found") }
     }
 
     @PatchMapping("/{id}")
-    fun partiallyUpdateNote(@PathVariable id: Long, @RequestBody updateFields: Map<String, Any>): Note {
+    fun partiallyUpdateNote(@PathVariable id: Long, @RequestBody updateFields: Map<String, Any>): NoteDTO {
         return noteRepository.findById(id).map { existedNote ->
             val updatedNote = existedNote.copy(
                 title = updateFields["title"] as? String ?: existedNote.title,
                 description = updateFields["description"] as? String ?: existedNote.description
             )
-            noteRepository.save(updatedNote)
+            NoteMapper.toDTO(noteRepository.save(updatedNote))
         }.orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found") }
     }
 

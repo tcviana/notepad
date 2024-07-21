@@ -1,4 +1,4 @@
-package com.tiago.notepad.note
+package com.tiago.notepad.domain.note
 
 import org.springframework.data.jpa.repository.JpaRepository
 

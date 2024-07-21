@@ -1,4 +1,4 @@
-package com.tiago.notepad.note
+package com.tiago.notepad.domain.note
 
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

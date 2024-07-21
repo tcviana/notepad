@@ -1,4 +1,4 @@
-package com.tiago.notepad.note
+package com.tiago.notepad.domain.note
 
 /**
  * A classe [NoteDTO] é responsável pelo tratamento dos campos da entidade [Note]

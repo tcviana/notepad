@@ -3,7 +3,7 @@ package com.tiago.notepad
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.tiago.notepad.domain.note.Note
 import com.tiago.notepad.domain.note.NoteController
-import com.tiago.notepad.domain.note.NoteRepository
+import com.tiago.notepad.domain.note.NoteService
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,7 +13,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import java.util.*
 
 @WebMvcTest(NoteController::class)
 class NoteControllerTests @Autowired constructor(
@@ -22,7 +21,7 @@ class NoteControllerTests @Autowired constructor(
 ) {
 
     @MockBean
-    lateinit var noteRepository: NoteRepository
+    lateinit var noteService: NoteService
 
     private val title = "Title"
     private val description = "Description"
@@ -30,7 +29,7 @@ class NoteControllerTests @Autowired constructor(
     @Test
     fun `should return all notes`() {
         val notes = listOf(retrieveCreatedNote())
-        `when`(noteRepository.findAll()).thenReturn(notes)
+        `when`(noteService.getNotes()).thenReturn(notes)
 
         mockMvc.perform(get("/notes"))
             .andExpect(status().isOk)
@@ -44,7 +43,7 @@ class NoteControllerTests @Autowired constructor(
         val note = Note(title = this.title, description = this.description)
         val savedNote = note.copy(id = 1)
 
-        `when`(noteRepository.save(note)).thenReturn(savedNote)
+        `when`(noteService.createNote(note)).thenReturn(savedNote)
 
         mockMvc.perform(
             post("/notes")
@@ -60,20 +59,20 @@ class NoteControllerTests @Autowired constructor(
     @Test
     fun `should delete a note`() {
         val noteId = 1L
-        `when`(noteRepository.existsById(noteId)).thenReturn(true)
+        `when`(noteService.deleteNote(noteId)).thenReturn(true)
 
         mockMvc.perform(
             delete("/notes/{id}", noteId)
         ).andExpect(status().isNoContent)
 
-        verify(noteRepository, times(1)).deleteById(noteId)
+        verify(noteService, times(1)).deleteNote(noteId)
     }
 
     @Test
     fun `should return 404 when deleting a non-existing note`() {
         val noteId = 5L
 
-        `when`(noteRepository.existsById(noteId)).thenReturn(false)
+        `when`(noteService.deleteNote(noteId)).thenReturn(false)
 
         mockMvc.perform(delete("/notes/{id}", noteId))
             .andExpect(status().isNotFound)
@@ -85,9 +84,9 @@ class NoteControllerTests @Autowired constructor(
         val title = "Update title"
         val description = "Update description"
         val updatedNote = existedNote.copy(title = title, description = description)
+        val updateFields: Map<String, Any> = createUpdateFields(updatedNote)
 
-        `when`(noteRepository.findById(existedNote.id!!)).thenReturn(Optional.of(existedNote))
-        `when`(noteRepository.save(updatedNote)).thenReturn(updatedNote)
+        `when`(noteService.updateNote(existedNote.id!!, updateFields)).thenReturn(updatedNote)
 
         mockMvc.perform(
             put("/notes/{id}", existedNote.id)
@@ -103,8 +102,9 @@ class NoteControllerTests @Autowired constructor(
     @Test
     fun `should return 404 when update a non-existing note`() {
         val note = retrieveCreatedNote()
+        val updateFields = createUpdateFields(note)
 
-        `when`(noteRepository.findById(note.id!!)).thenReturn(Optional.empty())
+        `when`(noteService.updateNote(note.id!!, updateFields)).thenReturn(null)
 
         mockMvc.perform(
             put("/notes/{id}", note.id)
@@ -120,24 +120,29 @@ class NoteControllerTests @Autowired constructor(
         val newNote = existedNote.copy(
             title = "Updated title"
         )
+        val updateFields = createUpdateFields(newNote)
 
-        `when`(noteRepository.findById(existedNote.id!!)).thenReturn(Optional.of(existedNote))
-        `when`(noteRepository.save(newNote)).thenReturn(newNote)
+        `when`(noteService.updateNote(existedNote.id!!, updateFields)).thenReturn(newNote)
 
         mockMvc.perform(
             patch("/notes/{id}", existedNote.id)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newNote))
+                .content(objectMapper.writeValueAsString(updateFields))
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(existedNote.id))
             .andExpect(jsonPath("$.title").value(newNote.title))
             .andExpect(jsonPath("$.description").value(existedNote.description))
 
-        verify(noteRepository, times(1)).findById(existedNote.id!!)
-        verify(noteRepository, times(1)).save(newNote)
+        verify(noteService, times(1)).updateNote(existedNote.id!!, updateFields)
     }
 
     private fun retrieveCreatedNote(): Note = Note(1, title, description)
 
+    private fun createUpdateFields(updatedNote: Note): Map<String, Any> {
+        return mapOf(
+            "title" to updatedNote.title,
+            "description" to updatedNote.description
+        )
+    }
 }

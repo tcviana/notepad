@@ -1,39 +1,39 @@
 package com.tiago.notepad.infrastructure
 
-import org.springframework.cache.annotation.EnableCaching
+import org.springframework.cache.CacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.redis.cache.RedisCacheConfiguration
 import org.springframework.data.redis.cache.RedisCacheManager
-import org.springframework.data.redis.connection.RedisConnectionFactory
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.data.redis.serializer.RedisSerializationContext
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer
 
 @Configuration
-@EnableCaching
 class RedisConfig {
 
     @Bean
-    fun cacheManager(redisConnectionFactory: RedisConnectionFactory): RedisCacheManager {
-        val redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-            .serializeKeysWith(
-                RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer())
-            )
-            .serializeValuesWith(
-                RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer())
-            )
-        return RedisCacheManager.builder(redisConnectionFactory)
-            .cacheDefaults(redisCacheConfiguration)
-            .build()
+    fun redisConnectionFactory(): LettuceConnectionFactory {
+        return LettuceConnectionFactory()
     }
 
     @Bean
-    fun redisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, Any> {
+    fun redisTemplate(): RedisTemplate<String, Any> {
         val template = RedisTemplate<String, Any>()
-        template.connectionFactory = connectionFactory
+        template.connectionFactory = redisConnectionFactory()
+
+        // Use StringRedisSerializer for keys
         template.keySerializer = StringRedisSerializer()
-        template.valueSerializer = StringRedisSerializer()
+
+        // Use GenericJackson2JsonRedisSerializer for values
+        template.valueSerializer = GenericJackson2JsonRedisSerializer()
+
         return template
     }
+
+    @Bean
+    fun cacheManager(): CacheManager {
+        return RedisCacheManager.builder(redisConnectionFactory()).build()
+    }
+
 }

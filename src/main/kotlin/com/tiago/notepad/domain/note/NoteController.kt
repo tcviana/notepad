@@ -1,7 +1,7 @@
 package com.tiago.notepad.domain.note
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 
@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("notes")
-class NoteController(@Autowired private val noteRepository: NoteRepository) {
+class NoteController(private val noteService: NoteService) {
 
     /**
      * Retorna todas as notas.
@@ -23,7 +23,7 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
      * @return Lista de todas as notas
      */
     @GetMapping
-    fun getAllNotes(): List<NoteDTO> = noteRepository.findAll().map { NoteMapper.toDTO(it) }
+    fun getAllNotes(): List<NoteDTO> = noteService.getNotes().map { NoteMapper.toDTO(it) }
 
     /**
      * Cria uma nova nota.
@@ -34,7 +34,7 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
     @PostMapping
     fun createNote(@RequestBody noteDTO: NoteDTO): NoteDTO {
         val note = NoteMapper.toEntity(noteDTO)
-        return NoteMapper.toDTO(noteRepository.save(note))
+        return NoteMapper.toDTO(noteService.createNote(note))
     }
 
     /**
@@ -45,9 +45,7 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteNote(@PathVariable id: Long) {
-        if (noteRepository.existsById(id))
-            noteRepository.deleteById(id)
-        else
+        if (!noteService.deleteNote(id))
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found")
     }
 
@@ -55,28 +53,53 @@ class NoteController(@Autowired private val noteRepository: NoteRepository) {
      * Atualiza uma note
      *
      * @param id - id da nota a ser atualizada
-     * @param note - nota a ser atualizada
+     * @param noteDTO - nota a ser atualizada
+     * @return A nota atualizada.
      */
     @PutMapping("/{id}")
-    fun updateNote(@PathVariable id: Long, @RequestBody note: NoteDTO): NoteDTO {
-        return noteRepository.findById(id).map { existedNote ->
-            val newNote = existedNote.copy(
-                title = note.title,
-                description = note.description
+    fun updateNote(@PathVariable id: Long, @RequestBody note: NoteDTO): ResponseEntity<NoteDTO> {
+        return partiallyUpdateNote(
+            id, mapOf(
+                "title" to note.title,
+                "description" to note.description
             )
-            NoteMapper.toDTO(noteRepository.save(newNote))
-        }.orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found") }
+        )
     }
 
+    /**
+     * Atualiza parcialmente uma nota.
+     *
+     * @param id - id da nota a ser atualizada
+     * @param updateFields - campos a serem atualizados
+     * @return A nota atualizada.
+     */
     @PatchMapping("/{id}")
-    fun partiallyUpdateNote(@PathVariable id: Long, @RequestBody updateFields: Map<String, Any>): NoteDTO {
-        return noteRepository.findById(id).map { existedNote ->
-            val updatedNote = existedNote.copy(
-                title = updateFields["title"] as? String ?: existedNote.title,
-                description = updateFields["description"] as? String ?: existedNote.description
-            )
-            NoteMapper.toDTO(noteRepository.save(updatedNote))
-        }.orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found") }
+    fun partiallyUpdateNote(
+        @PathVariable id: Long,
+        @RequestBody updateFields: Map<String, Any>
+    ): ResponseEntity<NoteDTO> {
+        val note = noteService.updateNote(id, updateFields)
+        return if (note != null) {
+            ResponseEntity(NoteMapper.toDTO(note), HttpStatus.OK)
+        } else {
+            ResponseEntity(HttpStatus.NOT_FOUND)
+        }
+    }
+
+    /**
+     * Retorna uma nota pelo ID.
+     *
+     * @param id - id da nota a ser retornada
+     * @return A nota encontrada ou um status 404 se não for encontrada
+     */
+    @GetMapping("/{id}")
+    fun getById(@PathVariable id: Long): ResponseEntity<NoteDTO> {
+        val note = noteService.getNoteById(id)
+        return if (note.isPresent) {
+            ResponseEntity(NoteMapper.toDTO(note.get()), HttpStatus.OK)
+        } else {
+            ResponseEntity(HttpStatus.NOT_FOUND)
+        }
     }
 
 }

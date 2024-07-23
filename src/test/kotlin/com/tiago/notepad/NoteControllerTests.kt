@@ -13,6 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import java.util.*
 
 @WebMvcTest(NoteController::class)
 class NoteControllerTests @Autowired constructor(
@@ -135,6 +136,19 @@ class NoteControllerTests @Autowired constructor(
             .andExpect(jsonPath("$.description").value(existedNote.description))
 
         verify(noteService, times(1)).updateNote(existedNote.id!!, updateFields)
+    }
+
+    @Test
+    fun `should get a note by id`() {
+        val note = retrieveCreatedNote()
+
+        `when`(noteService.getNoteById(note.id!!)).thenReturn(Optional.of(note))
+
+        mockMvc.perform(
+            get("/notes/{id}", note.id)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(note.id))
     }
 
     private fun retrieveCreatedNote(): Note = Note(1, title, description)

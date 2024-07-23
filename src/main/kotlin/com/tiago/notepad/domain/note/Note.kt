@@ -1,9 +1,10 @@
-package com.tiago.notepad.note
+package com.tiago.notepad.domain.note
 
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import java.io.Serializable
 
 /**
  * A classe [Note] representa uma nota no sistema.
@@ -22,4 +23,4 @@ data class Note(
     val id: Long? = null,
     val title: String = "",
     val description: String = ""
-)
+) : Serializable

@@ -1,4 +1,4 @@
-package com.tiago.notepad.note
+package com.tiago.notepad.domain.note
 
 /**
  * A classe [NoteMapper] é um singleton responsável pela conversão de um objeto

@@ -46,4 +46,10 @@ class NoteService(private val noteRepository: NoteRepository) {
         println("Get by id")
         return noteRepository.findById(id)
     }
+
+    @Cacheable(value = ["notes"])
+    fun findNotes(note: Note): List<Note> {
+        val specification = NoteSpecification.specification(note)
+        return noteRepository.findAll(specification)
+    }
 }

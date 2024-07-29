@@ -109,8 +109,8 @@ class NoteController(private val noteService: NoteService) {
      * return lista de notas encontradas
      */
     @GetMapping("/search")
-    fun findNotes(@RequestBody note: Note): List<NoteDTO> {
-        return noteService.findNotes(note).map { NoteMapper.toDTO(it) }
+    fun findNotes(@RequestBody note: NoteDTO): List<NoteDTO> {
+        return noteService.findNotes(NoteMapper.toEntity(note)).map { NoteMapper.toDTO(it) }
     }
 
 }

@@ -151,6 +151,24 @@ class NoteControllerTests @Autowired constructor(
             .andExpect(jsonPath("$.id").value(note.id))
     }
 
+    @Test
+    fun `should get a list of notes by filter title`() {
+        val note1 = retrieveCreatedNote()
+        val note2 = note1.copy(description = "hello")
+        val note3 = note1.copy(description = "world")
+
+        `when`(noteService.findNotes(note1)).thenReturn(listOf(note1, note2, note3))
+
+        mockMvc.perform(
+            get("/notes/search")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(note1))
+        )
+            .andExpect(status().isOk)
+
+        verify(noteService, times(1)).findNotes(note1)
+    }
+
     private fun retrieveCreatedNote(): Note = Note(1, title, description)
 
     private fun createUpdateFields(updatedNote: Note): Map<String, Any> {

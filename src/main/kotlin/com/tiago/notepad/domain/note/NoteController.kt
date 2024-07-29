@@ -102,4 +102,15 @@ class NoteController(private val noteService: NoteService) {
         }
     }
 
+    /**
+     * Retorna uma lista de notas com base nos filtros
+     *
+     * @param note specification com os campos a serem filtrados
+     * return lista de notas encontradas
+     */
+    @GetMapping("/search")
+    fun findNotes(@RequestBody note: Note): List<NoteDTO> {
+        return noteService.findNotes(note).map { NoteMapper.toDTO(it) }
+    }
+
 }

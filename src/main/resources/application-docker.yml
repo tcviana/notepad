@@ -1,0 +1,9 @@
+spring:
+  data:
+    dynamodb:
+      endpoint: http://localstack:4566
+      region: us-east-1
+      tableNameOverride: NotesTable
+  jpa:
+    hibernate:
+      ddl-auto: update

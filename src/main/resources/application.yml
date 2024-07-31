@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: notepad
+  cache:
+    type: redis
+  redis:
+    host: localhost
+    port: 6379
+  profiles:
+    default: local
+
+logging:
+  level:
+    org:
+      springframework:
+        cache: DEBUG
+        data:
+          redis:
+            cache: DEBUG

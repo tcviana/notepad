@@ -20,7 +20,7 @@ import java.io.Serializable
 @Entity
 data class Note(
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    val id: Long? = null,
+    var id: Long? = null,
     val title: String = "",
     val description: String = ""
 ) : Serializable

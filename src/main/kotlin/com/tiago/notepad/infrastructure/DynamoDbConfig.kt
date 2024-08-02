@@ -1,19 +1,25 @@
 package com.tiago.notepad.infrastructure
 
+import com.amazonaws.client.builder.AwsClientBuilder
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
+import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient
-import java.net.URI
 
 @Configuration
+@EnableDynamoDBRepositories(basePackages = ["com.tiago.notepad.domain.note"])
 class DynamoDbConfig {
 
     @Bean
-    fun dynamoDbClient(): DynamoDbClient {
-        return DynamoDbClient.builder()
-            .endpointOverride(URI.create("http://localstack:4566"))
-            .region(Region.US_EAST_1)
+    fun amazonDynamoDB(): AmazonDynamoDB {
+        return AmazonDynamoDBClientBuilder.standard()
+            .withEndpointConfiguration(
+                AwsClientBuilder.EndpointConfiguration(
+                    "http://localhost:4566", // Endpoint do LocalStack
+                    "us-west-2" // Região padrão
+                )
+            )
             .build()
     }
 }

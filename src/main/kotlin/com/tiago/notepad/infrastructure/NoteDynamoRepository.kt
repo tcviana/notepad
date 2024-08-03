@@ -1,9 +1,10 @@
 package com.tiago.notepad.infrastructure
 
-import com.tiago.notepad.domain.note.Note
+import com.tiago.notepad.domain.note.NoteRepository
 import org.socialsignin.spring.data.dynamodb.repository.EnableScan
-import org.springframework.data.repository.CrudRepository
+import org.springframework.context.annotation.Profile
 
 @EnableScan
-interface NoteDynamoRepository : CrudRepository<Note, String> {
+@Profile("local")
+interface NoteDynamoRepository : NoteRepository {
 }

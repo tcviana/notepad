@@ -14,6 +14,6 @@ import org.springframework.data.repository.CrudRepository
  * @author tcviana
  * @since 2024-07-10
  */
-@Profile("!local")
+@Profile("local")
 interface NoteRepository : CrudRepository<Note, Long>, JpaSpecificationExecutor<Note> {
 }

@@ -15,7 +15,7 @@ class NoteService(private val noteRepository: NoteRepository) {
     }
 
     @Cacheable(value = ["notes"])
-    fun getNotes(): List<Note> {
+    fun getNotes(): MutableIterable<Note> {
         println("Get list")
         return noteRepository.findAll()
     }

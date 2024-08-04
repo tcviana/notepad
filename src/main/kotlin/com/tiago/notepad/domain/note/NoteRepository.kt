@@ -1,7 +1,9 @@
 package com.tiago.notepad.domain.note
 
+import org.springframework.context.annotation.Profile
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.repository.CrudRepository
 
 /**
  * Repositório para a entidade [Note].
@@ -12,5 +14,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
  * @author tcviana
  * @since 2024-07-10
  */
-interface NoteRepository : JpaRepository<Note, Long>, JpaSpecificationExecutor<Note> {
+@Profile("local")
+interface NoteRepository : CrudRepository<Note, Long>, JpaSpecificationExecutor<Note> {
 }

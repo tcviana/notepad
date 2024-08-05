@@ -20,10 +20,11 @@ repositories {
 }
 
 dependencies {
+    implementation("software.amazon.awssdk:dynamodb:2.26.29")
+    implementation("com.github.derjust:spring-data-dynamodb:5.1.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("org.hsqldb:hsqldb")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

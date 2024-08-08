@@ -1,9 +1,11 @@
-package com.tiago.notepad.domain.note
+package com.tiago.notepad.infrastructure
 
+import com.tiago.notepad.domain.note.Note
+import com.tiago.notepad.domain.note.NoteRepository
 import org.springframework.context.annotation.Profile
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
-import org.springframework.data.repository.CrudRepository
+import org.springframework.stereotype.Repository
 
 /**
  * Repositório para a entidade [Note].
@@ -12,8 +14,9 @@ import org.springframework.data.repository.CrudRepository
  * herdando da interface [JpaRepository] e [JpaSpecificationExecutor] para filtros
  *
  * @author tcviana
- * @since 2024-07-10
+ * @since 2024-07-29
  */
+@Repository
 @Profile("local")
-interface NoteRepository : CrudRepository<Note, Long>, JpaSpecificationExecutor<Note> {
+interface NoteH2Repository : NoteRepository {
 }

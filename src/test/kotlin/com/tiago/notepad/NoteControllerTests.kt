@@ -29,7 +29,7 @@ class NoteControllerTests @Autowired constructor(
 
     @Test
     fun `should return all notes`() {
-        val notes = listOf(retrieveCreatedNote())
+        val notes = mutableListOf(retrieveCreatedNote())
         `when`(noteService.getNotes()).thenReturn(notes)
 
         mockMvc.perform(get("/notes"))

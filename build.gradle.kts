@@ -20,6 +20,11 @@ repositories {
 }
 
 dependencies {
+    implementation("software.amazon.awssdk:sqs:2.17.58")
+    implementation("io.awspring.cloud:spring-cloud-aws-messaging:2.3.3")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-web")

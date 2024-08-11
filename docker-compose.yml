@@ -18,6 +18,16 @@ services:
     ports:
       - "6379:6379"
 
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs,dynamodb
+      - DEBUG=1
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
   app:
     build: .
     container_name: app
@@ -26,6 +36,9 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_REDIS_HOST=redis
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_REGION=us-east-1
       - AWS_ENDPOINT=http://localstack:4566
     depends_on:
       - redis
